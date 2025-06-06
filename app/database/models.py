@@ -22,4 +22,5 @@ class PartyInvitees(SQLModel, table=True):
     email_address: Optional[EmailStr] = Field(default=None)
     rsvp: bool = Field(default=False)
     rsvp_date: Optional[datetime] = Field(default=None)
+    child: bool = Field(default=False)
     invite_sent: bool = Field(default=False)

@@ -2,7 +2,6 @@ import os
 import dotenv
 from datetime import datetime, timedelta, timezone
 import jwt
-from jwt import PyJWTError, ExpiredSignatureError
 from fastapi import Depends, HTTPException, Header, status
 
 dotenv.load_dotenv()
@@ -37,12 +36,12 @@ def verify_jwt_token(authorization: str = Header(...)) -> dict:
 
         return payload["sub"]
 
-    except ExpiredSignatureError:
+    except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired",
         )
-    except PyJWTError:
+    except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
