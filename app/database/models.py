@@ -17,7 +17,9 @@ class PartyInvitees(SQLModel, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
+    callout_name: str
     mobile_number: str
+    gender: str
     invitee_identifier: uuid.UUID = Field(default_factory=uuid.uuid4, index=True)
     email_address: Optional[EmailStr] = Field(default=None)
     rsvp: bool = Field(default=False)

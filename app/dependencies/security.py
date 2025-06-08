@@ -6,6 +6,9 @@ from fastapi import Depends, HTTPException, Header, status
 
 dotenv.load_dotenv()
 
+import jwt
+print(jwt.__file__)
+
 SECRET_KEY = os.getenv("JWT_SECRET")
 ALGORITHM = os.getenv("JWT_ALGORITHM")
 

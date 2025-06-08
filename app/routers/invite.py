@@ -48,19 +48,13 @@ def create_invitee(party_invitee: PartyInvitees, session: SessionDep) -> PartyIn
 @router.get("/invitees", status_code=status.HTTP_200_OK)
 def get_invitee_details(
     session: SessionDep,
-    name: str | None,
-    mobile_number: str | None,
     invitee_identifier: uuid.UUID | None,
 ):
-    if not name or not mobile_number or not invitee_identifier:
+    if not invitee_identifier:
         raise HTTPException(status_code=400, detail="Required details are missing")
-
-    print(name, mobile_number, invitee_identifier)
 
     invitee = session.exec(
         select(PartyInvitees).where(
-            PartyInvitees.name == name,
-            PartyInvitees.mobile_number == mobile_number,
             PartyInvitees.invitee_identifier == invitee_identifier,
         )
     ).first()
@@ -91,7 +85,7 @@ async def update_invite_rsvp(
 
     now = datetime.utcnow()
 
-    print(invitee_data)
+    print(_invitee_identifier)
 
     if not invitee_data:
         raise HTTPException(status_code=404, detail="Invitee not found")
@@ -105,4 +99,7 @@ async def update_invite_rsvp(
     session.add(invitee_data)
     session.commit()
     session.refresh(invitee_data)
-    return invitee_data
+    return {
+        "invitee_identifier": invitee_data.invitee_identifier,
+        "rsvp_status": invitee_data.rsvp,
+    }
