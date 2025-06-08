@@ -7,6 +7,7 @@ from typing import List
 from pydantic import BaseModel
 from ..dependencies.security import create_jwt_token, verify_jwt_token
 from datetime import datetime
+from sqlalchemy.sql import func
 
 
 router = APIRouter()
@@ -85,8 +86,6 @@ async def update_invite_rsvp(
 
     now = datetime.utcnow()
 
-    print(_invitee_identifier)
-
     if not invitee_data:
         raise HTTPException(status_code=404, detail="Invitee not found")
 
@@ -103,3 +102,26 @@ async def update_invite_rsvp(
         "invitee_identifier": invitee_data.invitee_identifier,
         "rsvp_status": invitee_data.rsvp,
     }
+
+
+@router.get("/rsvp", status_code=status.HTTP_200_OK)
+async def get_rsvp_count(
+    identifier: uuid.UUID,
+    session: SessionDep,
+):
+    invitee_data = session.exec(
+        select(PartyInvitees).where(PartyInvitees.invitee_identifier == identifier)
+    ).first()
+
+    if not invitee_data:
+        raise HTTPException(status_code=404, detail="Invitee not found")
+
+    # Count all RSVP'd invitees
+    statement = (
+        select(func.count())
+        .select_from(PartyInvitees)
+        .where(PartyInvitees.rsvp == True)
+    )
+    count = session.exec(statement).one()
+
+    return {"rsvp_count": count}
