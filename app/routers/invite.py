@@ -1,9 +1,9 @@
 import uuid
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Query
 from ..database.models import PartyInvitees
 from ..database.db import SessionDep
 from sqlmodel import select
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from ..dependencies.security import create_jwt_token, verify_jwt_token
 from datetime import datetime
@@ -17,9 +17,9 @@ class RSVPConfirmRequest(BaseModel):
     invitee_identifier: uuid.UUID
 
 
-@router.get("/invitees_all", status_code=status.HTTP_200_OK)
-def get_all_products(session: SessionDep) -> List[PartyInvitees]:
-    return session.exec(select(PartyInvitees)).all()
+# @router.get("/invitees_all", status_code=status.HTTP_200_OK)
+# def get_all_products(session: SessionDep) -> List[PartyInvitees]:
+#     return session.exec(select(PartyInvitees)).all()
 
 
 @router.post("/invitees", status_code=status.HTTP_201_CREATED)
@@ -77,7 +77,8 @@ async def update_invite_rsvp(
     invitee: RSVPConfirmRequest,
     session: SessionDep,
     _invitee_identifier: str = Depends(verify_jwt_token),
-) -> PartyInvitees:
+    fyno_token: Optional[str] = Query(None, alias="fyno_token"),
+) -> dict:
     invitee_data = session.exec(
         select(PartyInvitees).where(
             PartyInvitees.invitee_identifier == invitee.invitee_identifier
@@ -95,19 +96,19 @@ async def update_invite_rsvp(
     invitee_data.rsvp = True
     invitee_data.rsvp_date = now
 
+    print(invitee_data)
+
     session.add(invitee_data)
     session.commit()
     session.refresh(invitee_data)
-    return {
-        "invitee_identifier": invitee_data.invitee_identifier,
-        "rsvp_status": invitee_data.rsvp,
-    }
+    return {**invitee_data.model_dump(), "fyno_token": fyno_token}
 
 
 @router.get("/rsvp", status_code=status.HTTP_200_OK)
 async def get_rsvp_count(
     identifier: uuid.UUID,
     session: SessionDep,
+    fyno_token: Optional[str] = Query(None, alias="fyno_token"),
 ):
     invitee_data = session.exec(
         select(PartyInvitees).where(PartyInvitees.invitee_identifier == identifier)
@@ -124,4 +125,4 @@ async def get_rsvp_count(
     )
     count = session.exec(statement).one()
 
-    return {"rsvp_count": count}
+    return {"rsvp_count": count, "fyno_token": fyno_token}

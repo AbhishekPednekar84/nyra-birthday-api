@@ -9,6 +9,7 @@ dotenv==0.9.9
 email_validator==2.2.0
 fastapi==0.115.3
 fastapi-cli==0.0.5
+gunicorn==23.0.0
 h11==0.14.0
 httpcore==1.0.6
 httptools==0.6.4
@@ -19,6 +20,7 @@ Jinja2==3.1.4
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
+packaging==25.0
 psycopg2==2.9.10
 pycparser==2.22
 pydantic==2.9.2

@@ -13,6 +13,7 @@ app.add_middleware(
         "https://api.nyrasbirthday.xyz",
         "https://nyrasbirthday.xyz",
         "https://www.nyrasbirthday.xyz",
+        "https://4ac7-49-37-170-215.ngrok-free.app",
     ],  # or ["*"] for testing
     allow_credentials=True,
     allow_methods=["*"],
